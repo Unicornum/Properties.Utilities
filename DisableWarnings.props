@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <EXCLUDE_WARNIN_DIR>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)Solution\Solution\Externals;</EXCLUDE_WARNIN_DIR>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalOptions>/experimental:external /external:env:EXCLUDE_WARNIN_DIR /external:W0 /external:templates- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="EXCLUDE_WARNIN_DIR">
+      <Value>$(EXCLUDE_WARNIN_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+  <PropertyGroup Condition="'$(Language)'=='C++'">
+    <CAExcludePath>$(EXCLUDE_WARNIN_DIR)</CAExcludePath>
+  </PropertyGroup>
+</Project>

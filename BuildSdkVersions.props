@@ -5,11 +5,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <PostBuildEvent>
-      <Command>%(Command)
-
-if "$(IsAndroid)" == "No" goto EndSdkVersionsFile
-
-echo ***************************** Build SDK Versions ****************************
+      <Command>if "$(IsAndroid)" == "No" goto EndSdkVersionsFile
 
 set PATH=%PATH%;"$(VS_AntHome)"\bin
 set PathToSdkVersionsFile=$(SolutionDir)Solution\SdkVersions.txt
@@ -63,6 +59,8 @@ for /f "tokens=3,4 usebackq" %%i in (`call ant.bat -version`) do (
 exit /b 0
 
 :EndSdkVersionsFile
+
+%(Command)
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
