@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Externals.Header.props" />
+    <Import Project="Externals.Copy.props" />
+    <Import Project="Externals.Props.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <ThisFileDirectory>$(MSBuildThisFileDirectory)</ThisFileDirectory>
+    <LibraryPartName>$([System.String]::new($(ProjectShortName)).Replace($(LibraryName)., ''))</LibraryPartName>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutDir>$(ThisFileDirectory)$(LibraryName)\$(PartName)\$(TypeProjectDir)\$(PlatformTarget)\$(PlatformToolsetDirectory)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Command>if "$(LibraryName)" == "" (
+  echo Externals.Build.props: error: not set macros $^(LibraryName^).
+)
+
+%(Command)
+</Command>
+    </PreBuildEvent>
+    <PostBuildEvent />
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="ThisFileDirectory">
+      <Value>$(ThisFileDirectory)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LibraryPartName">
+      <Value>$(LibraryPartName)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

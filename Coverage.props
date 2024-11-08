@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>%(Command)
+
+if "%USING_SCRIPT_BILDING%" == "" goto EndCoverage
+
+echo ******************************* Coverage code *******************************
+
+set COVERAGE_RUN="C:\Program Files\OpenCppCoverage\OpenCppCoverage.exe"
+set PATH_TO_REPORT=$(SolutionDir)Solution\Solution\^(Documentation^)\Coverage.result.xml
+set COVERAGE_CONFIG="$(VsBuildDir)\coverage.cfg"
+set TEST_RUN="$(SolutionDir)$(Configuration)\Test\x64\Test.Solution.exe"
+set PROCESSING_REPORT_RUN="$(SolutionDir)$(Configuration)\Bin\x64\Documentation.exe"
+
+(
+echo modules=*\Debug\Test\x64\*.dll
+echo excluded_modules=*\Coverage.ignore\*
+echo sources=*\Solution\Solution\*
+echo excluded_sources=*\Externals\*
+echo excluded_sources=*\*_test.cpp
+echo excluded_sources=*\test.*\*
+echo excluded_sources=*\*.mock.*
+echo excluded_sources=*\mock\*
+echo excluded_sources=*\dump.cpp
+echo export_type=cobertura:$(SolutionDir)Solution\Solution\^(Documentation^)\Coverage.result.xml
+echo excluded_line_regex=\s*\}
+echo excluded_line_regex=\s*\{
+echo excluded_line_regex=\s*else
+) &gt; %COVERAGE_CONFIG%
+
+%COVERAGE_RUN% --config_file %COVERAGE_CONFIG% -- %TEST_RUN% --silent 2&gt; nul 1&gt; nul
+
+%PROCESSING_REPORT_RUN% --file="%PATH_TO_REPORT%" --path-to-solution=$(SolutionDir) --process-report=coverage --max-records=20
+
+:EndCoverage
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

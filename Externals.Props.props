@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PreBuildEvent />
+    <PostBuildEvent />
+    <PreBuildEvent>
+      <Command>%(Command)
+
+Setlocal EnableDelayedExpansion
+
+if "$(PartName)" == "" (
+set LibraryPropsName=$(LibraryName)
+) else (
+set LibraryPropsName=$(PartName)
+)
+
+set PathToLibraryProps=$(ThisFileDirectory)$(LibraryName)\$(PartName)\!LibraryPropsName!.props
+
+if exist "!PathToLibraryProps!" goto EndExternalsProps
+
+echo Info: build !LibraryPropsName!.props file...
+
+set Find=THIS_FILE_NAME
+set Replace=$(Prefix)$(ProjectShortName)
+
+for /F "tokens=* delims=," %%i in ($(ThisFileDirectory)Example.Library.props) do (
+set LINE=%%i
+set TMPR=!LINE:%Find%=%Replace%!
+echo !TMPR!&gt;&gt;"!PathToLibraryProps!"
+)
+
+:EndExternalsProps
+</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

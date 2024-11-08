@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>%(Command)
+
+echo ***************************** Calculate metrics *****************************
+
+set METRICS_RUN=$(SolutionDir)Solution\Solution\Externals\Utilities\SourceMonitor\SourceMonitor.exe
+set METRICS_OPTIONS=$(SolutionDir)Solution\Solution\Externals\Utilities\SourceMonitor\Complex.xml
+set METRICS_PROCESSING=$(OutDir)..\x64\Documentation.exe
+
+cd $(SolutionDir)Solution
+%METRICS_RUN% /c %METRICS_OPTIONS%
+
+%METRICS_PROCESSING% --process-report=metrics --file="$(SolutionDir)Solution\Solution\(Documentation)" --max-records=20
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

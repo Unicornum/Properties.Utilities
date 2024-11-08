@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>%(Command)
+
+if "%USING_SCRIPT_BILDING%" == "" goto EndTest
+
+echo ***************************** Run solution tests ****************************
+
+set TEST_RUN="$(SolutionDir)$(Configuration)\Test\x64\Test.Solution.exe"
+set TEST_RUN_REPORT="$(SolutionDir)Solution\Solution\(Documentation)\Solution.tests.html"
+set TEST_RUN_PARAMS=--silent --doxygen --file %TEST_RUN_REPORT%
+
+%TEST_RUN% %TEST_RUN_PARAMS%
+
+:EndTest
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

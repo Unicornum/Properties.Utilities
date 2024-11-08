@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+    <Import Project="BuildSdkVersions.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <IsBinary>$([System.String]::new($(ConfigurationType)).Replace('StaticLibrary', 'No').Replace('Application', 'Yes').Replace('DynamicLibrary', 'Yes').Replace('Utility', 'Yes'))</IsBinary>
+    <IsTest>$([System.Text.RegularExpressions.Regex]::Replace($(ProjectName), '^Test\..+', 'Yes', System.Text.RegularExpressions.RegexOptions.IgnoreCase).Replace($(ProjectName), 'No'))</IsTest>
+    <IsNotTest>$([System.Text.RegularExpressions.Regex]::Replace($(ProjectName), '^Test\..+', 'No', System.Text.RegularExpressions.RegexOptions.IgnoreCase).Replace($(ProjectName), 'Yes'))</IsNotTest>
+    <IsAndroid>$([System.String]::new($(ApplicationType).Fake).Replace('Android.Fake', 'Yes').Replace($(ApplicationType).Fake, 'No'))</IsAndroid>
+    <ProjectShortName>$([System.String]::new($(ProjectName)).Replace('.Android', '').Replace('.Windows', ''))</ProjectShortName>
+    <PartName>$([System.String]::new($(ProjectDir)).Replace($(SolutionDir), '').Replace($(ProjectName)\, '').Replace($(ProjectShortName)\, '').Replace('Solution\', '').Replace('\', '.').Trim('.'))</PartName>
+    <ResultType>$([System.String]::new($(IsBinary)).Replace('No', 'Lib').Replace('Yes', 'Bin'))</ResultType>
+    <TypeProjectDir>$([System.String]::new($(IsTest)).Replace('Yes', 'Test').Replace('No', $(ResultType)))</TypeProjectDir>
+    <Prefix>$([System.String]::new($(IsBinary)).Replace('Yes', $(IsNotTest)).Replace('Yes', '').Replace('No', $(PartName).).TrimStart('.'))</Prefix>
+    <PrefixAndroid>$([System.String]::new($(IsAndroid)).Replace('No', '').Replace('Yes', 'lib'))</PrefixAndroid>
+    <ShortConfig>$([System.String]::new($(Configuration)).Replace('.Product', ''))</ShortConfig>
+    <Suffix>$([System.String]::new($(IsBinary)).Replace('Yes', '').Replace('No', .$(ShortConfig)))</Suffix>
+    <BinaryRootDir>$(SolutionDir)$(Configuration)\</BinaryRootDir>
+    <PlatformToolsetDirectory>$([System.String]::new($(PlatformToolset)).Replace('C', 'c').Replace('v', 'vs').Replace('G', 'g'))</PlatformToolsetDirectory>
+    <ResultDir>$(BinaryRootDir)$(TypeProjectDir)\$(PlatformTarget)\</ResultDir>
+    <ThisFileDirectory>$(MSBuildThisFileDirectory)</ThisFileDirectory>
+    <FullSolutionName>$([System.String]::new($(SolutionDir)).Substring(3).Replace('\', '_'))</FullSolutionName>
+    <VsBuildDisk>$([System.String]::new($(TEMP)).Substring(0, 3))</VsBuildDisk>
+    <VsBuildDir>$(VsBuildDisk)VSBuild\$(Configuration)\$(FullSolutionName)</VsBuildDir>
+    <PchFileName>$([System.String]::new($(IsAndroid)).Replace('Yes', 'pch.h').Replace('No', 'stdafx.h'))</PchFileName>
+    <UniversalExceptionHandling>$([System.String]::new($(IsAndroid)).Replace('Yes', 'Enabled').Replace('No', 'Sync'))</UniversalExceptionHandling>
+    <UniversalDebugInformationFormat>$([System.String]::new($(IsAndroid)).Replace('No', 'ProgramDatabase').Replace('Yes', 'None'))</UniversalDebugInformationFormat>
+    <UniversalAdditionalOptions>$([System.String]::new($(IsAndroid)).Replace('Yes', '').Replace('No', '/ignore:4099'))</UniversalAdditionalOptions>
+    <UniversalPathToSDKDDKVer>$([System.String]::new($(IsAndroid)).Replace('Yes', '$(ThisFileDirectory)\Android').Replace('No', ''))</UniversalPathToSDKDDKVer>
+    <UniversalPlatformToolsetVersion>$([System.String]::new($(IsAndroid)).Replace('Yes', '0').Replace('No', '$(PlatformToolsetVersion)'))</UniversalPlatformToolsetVersion>
+    <EnableBigObj>$([System.String]::new($(IsAndroid)).Replace('Yes', '').Replace('No', '/bigobj'))</EnableBigObj>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutDir>$(ResultDir)</OutDir>
+    <IntDir>$(VsBuildDir)\$(PartName)\$(ProjectName)\$(PlatformTarget)\</IntDir>
+    <TargetName>$(PrefixAndroid)$(Prefix)$(ProjectShortName)$(Suffix)</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(UniversalPathToSDKDDKVer);$(SolutionDir);$(SolutionDir)Solution\Solution;$(StlIncludeDirectories);$(SysrootLink)\usr\include;$(IncludePath)</IncludePath>
+    <UseMultiToolTask>true</UseMultiToolTask>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <UseFullPaths>true</UseFullPaths>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(PchFileName)</PrecompiledHeaderFile>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <CppLanguageStandard>c++14</CppLanguageStandard>
+      <DebugInformationFormat>$(UniversalDebugInformationFormat)</DebugInformationFormat>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <ExceptionHandling>$(UniversalExceptionHandling)</ExceptionHandling>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>$(EnableBigObj) %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(IntDir)$(TargetName).pgd</ProfileGuidedDatabase>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <StackReserveSize>10485760</StackReserveSize>
+      <StackCommitSize>40960</StackCommitSize>
+      <WholeArchiveBegin>true</WholeArchiveBegin>
+      <AdditionalLibraryDirectories>$(LibraryPath);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>m;%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalOptions>$(UniversalAdditionalOptions) %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Lib />
+    <Bscmake>
+      <OutputFile>$(IntDir)$(TargetName).bsc</OutputFile>
+    </Bscmake>
+    <ProjectReference />
+    <Lib />
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="IsBinary">
+      <Value>$(IsBinary)</Value>
+    </BuildMacro>
+    <BuildMacro Include="IsTest">
+      <Value>$(IsTest)</Value>
+    </BuildMacro>
+    <BuildMacro Include="IsNotTest">
+      <Value>$(IsNotTest)</Value>
+    </BuildMacro>
+    <BuildMacro Include="IsAndroid">
+      <Value>$(IsAndroid)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ProjectShortName">
+      <Value>$(ProjectShortName)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PartName">
+      <Value>$(PartName)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ResultType">
+      <Value>$(ResultType)</Value>
+    </BuildMacro>
+    <BuildMacro Include="TypeProjectDir">
+      <Value>$(TypeProjectDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="Prefix">
+      <Value>$(Prefix)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PrefixAndroid">
+      <Value>$(PrefixAndroid)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ShortConfig">
+      <Value>$(ShortConfig)</Value>
+    </BuildMacro>
+    <BuildMacro Include="Suffix">
+      <Value>$(Suffix)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BinaryRootDir">
+      <Value>$(BinaryRootDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PlatformToolsetDirectory">
+      <Value>$(PlatformToolsetDirectory)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ResultDir">
+      <Value>$(ResultDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ThisFileDirectory">
+      <Value>$(ThisFileDirectory)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FullSolutionName">
+      <Value>$(FullSolutionName)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VsBuildDisk">
+      <Value>$(VsBuildDisk)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VsBuildDir">
+      <Value>$(VsBuildDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PchFileName">
+      <Value>$(PchFileName)</Value>
+    </BuildMacro>
+    <BuildMacro Include="UniversalExceptionHandling">
+      <Value>$(UniversalExceptionHandling)</Value>
+    </BuildMacro>
+    <BuildMacro Include="UniversalDebugInformationFormat">
+      <Value>$(UniversalDebugInformationFormat)</Value>
+    </BuildMacro>
+    <BuildMacro Include="UniversalAdditionalOptions">
+      <Value>$(UniversalAdditionalOptions)</Value>
+    </BuildMacro>
+    <BuildMacro Include="UniversalPathToSDKDDKVer">
+      <Value>$(UniversalPathToSDKDDKVer)</Value>
+    </BuildMacro>
+    <BuildMacro Include="UniversalPlatformToolsetVersion">
+      <Value>$(UniversalPlatformToolsetVersion)</Value>
+    </BuildMacro>
+    <BuildMacro Include="EnableBigObj">
+      <Value>$(EnableBigObj)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

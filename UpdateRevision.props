@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>%(Command)
+
+set PathToVersionHpp=$(SolutionDir)Solution\Version.hpp
+
+echo.
+echo Update revision...
+Version.exe --update --file=%PathToVersionHpp% --platform=$(Platform)
+
+for /f "usebackq delims=;" %%a in (`Version.exe --set-environment-variables --file=%PathToVersionHpp% --platform=$(Platform)`) do (
+%%a
+)
+
+echo VERSION_SOLUTION: %VERSION_SOLUTION%
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

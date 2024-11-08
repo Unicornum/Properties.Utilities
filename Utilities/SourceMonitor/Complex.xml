@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- ======================================================================= 
+SourceMonitor command line script commands.
+ 
+Use: SourceMonitor.exe /c Complex.xml
+======================================================================== -->
+<sourcemonitor_commands>
+  <write_log>true</write_log>
+  <command>
+    <project_file>Metrics.smproj</project_file>
+    <file_extensions>*.h,*.hpp,*.inl,*.cpp</file_extensions>
+    <export>
+      <export_file>Solution\(Documentation)\Metrics.common.xml</export_file>
+      <export_type>1</export_type>
+    </export>
+    <delete_checkpoint />
+  </command>
+  <command>
+    <project_file>Metrics.smproj</project_file>
+    <file_extensions>*.h,*.hpp,*.inl,*.cpp</file_extensions>
+    <export>
+      <export_file>Solution\(Documentation)\Metrics.details.xml</export_file>
+      <export_type>2</export_type>
+    </export>
+    <delete_checkpoint />
+  </command>
+</sourcemonitor_commands>

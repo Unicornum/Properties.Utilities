@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>%(Command)
+
+if "$(IsAndroid)" == "No" goto EndSdkVersionsFile
+
+echo ***************************** Build SDK Versions ****************************
+
+set PATH=%PATH%;"$(VS_AntHome)"\bin
+set PathToSdkVersionsFile=$(SolutionDir)Solution\SdkVersions.txt
+
+(
+&lt;nul set /p strTemp=Android compiler:        
+call :EchoCompilerVersion
+echo Android stl library:     $(StlLibraryName)
+echo Android API Level:       $(AndroidAPILevel)
+&lt;nul set /p strTemp=Android SDK build tools: 
+dir $(VS_AndroidHome)\build-tools /B
+&lt;nul set /p strTemp=Android SDK platform:    
+dir $(VS_AndroidHome)\platforms /B
+&lt;nul set /p strTemp=Android NDK:             
+call :EchoDirectoryName "$(VS_NdkRoot)"
+&lt;nul set /p strTemp=JDK:                     
+call :EchoJdkVersion
+&lt;nul set /p strTemp=Apache Ant:              
+call :EchoAntVersion
+) &gt; %PathToSdkVersionsFile%
+
+goto :EndSdkVersionsFile
+
+:EchoCompilerVersion
+for /f "tokens=1 delims=: usebackq" %%i in (`$(ClangToolExe) --version`) do (
+  echo %%i
+  exit /b 0
+)
+exit /b 0
+
+:EchoDirectoryName
+echo %~nx1
+exit /b 0
+
+:EchoJdkVersion
+set JdkVersionFile=%TEMP%\jdk.version.txt
+$(VS_JavaHome)\bin\java.exe -version 2&gt; %JdkVersionFile%
+for /f "tokens=3" %%i in (%JdkVersionFile%) do (
+  echo %%~i
+  exit /b 0
+)
+exit /b 0
+
+:EchoAntVersion
+for /f "tokens=3,4 usebackq" %%i in (`call ant.bat -version`) do (
+  if "%%i"=="version" (
+    echo %%j
+    exit /b 0
+  )
+)
+exit /b 0
+
+:EndSdkVersionsFile
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

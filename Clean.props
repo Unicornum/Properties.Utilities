@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PreBuildEvent />
+    <PostBuildEvent>
+      <Command>if "%USING_SCRIPT_BILDING%" == "" goto EndCleanProps
+
+echo ========= Clean temp files =========
+rd /S /Q $(SolutionDir)$(Configuration)
+rd /S /Q $(VsBuildDir)
+rd /S /Q $(VsBuildDir)\..\..\Debug 2&gt;nul
+rd /S /Q $(VsBuildDir)\..\..\Debug.Product 2&gt;nul
+
+:EndCleanProps
+
+%(Command)
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

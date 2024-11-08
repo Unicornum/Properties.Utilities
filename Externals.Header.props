@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Command>if "$(IsAndroid)" == "Yes" goto EndExternalsHeader
+
+echo Info: build $(ProjectShortName).lib.hpp file...
+
+set LibraryName=$(LibraryName)
+set ProjectName=$(ProjectShortName)
+set Prefix=$(PartName).
+set ThisFileDirectory=$(ThisFileDirectory)
+set IntDir=$(IntDir)
+
+if "%Prefix%" == "." (
+  set LibName=%ProjectName%
+) else (
+  set LibName=%Prefix%%ProjectName%
+)
+
+set SourceLibInfoFile=%IntDir%%ProjectName%.hpp
+set ResultLibInfoDirectory=%ThisFileDirectory%%LibraryName%\%Prefix%\include\%LibraryName%
+set ResultLibInfoFile=%ResultLibInfoDirectory%\%ProjectName%.lib.hpp
+
+del %SourceLibInfoFile% &gt; nul
+
+mkdir %ResultLibInfoDirectory%
+
+(
+echo.
+echo #pragma once
+echo.
+echo // This is an automatically generated file,
+echo // all changes will be lost the build of the project %ProjectName%.
+echo.
+echo  #if BOOST_COMP_MSVC
+echo.
+echo  # ifdef _DEBUG
+echo  #   pragma comment^(lib, "%LibName%.Debug.lib"^)
+echo  # else
+echo  #   pragma comment^(lib, "%LibName%.Release.lib"^)
+echo  # endif
+echo.
+echo  #endif
+) &gt; %SourceLibInfoFile%
+
+if not exist %ResultLibInfoFile% goto CreateFile
+
+fc /B %SourceLibInfoFile% %ResultLibInfoFile% &gt; nul
+if ERRORLEVEL 1 goto CopyFile
+goto EndExternalsHeader
+
+:CreateFile
+echo Info: ... create file.
+copy /Y %SourceLibInfoFile% %ResultLibInfoFile% &gt; nul
+goto EndExternalsHeader
+
+:CopyFile
+echo Info: ... update file.
+copy /Y %SourceLibInfoFile% %ResultLibInfoFile% &gt; nul
+goto EndExternalsHeader
+
+:EndExternalsHeader
+
+%(Command)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

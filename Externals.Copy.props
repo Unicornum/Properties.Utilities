@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Command>Setlocal EnableDelayedExpansion
+
+echo Copy $(ProjectName) header files...
+
+if "$(PartName)" == "Tools" (
+set PathToSourceDirectory=$(ProjectDir)Externals
+set PathToDestDirectory=$(ThisFileDirectory)$(LibraryName)\$(PartName)\include\$(LibraryName)\$(LibraryPartName)
+set CopyFiles=*.hpp *.inl *.cpp *.rc
+) else (
+
+if "$(PathToSourceDirectory)" == "" (
+set PathToSourceDirectory=$(ProjectDir)
+set CopyFiles=*.hpp *.inl *.rc
+) else (
+set PathToSourceDirectory=$(PathToSourceDirectory)
+set CopyFiles=*.h *.hpp *.inl
+)
+
+if exist !PathToSourceDirectory!\$(LibraryName) (
+set PathToSourceDirectory=!PathToSourceDirectory!\$(LibraryName)
+)
+
+if "$(LibraryName)" == "$(LibraryPartName)" (
+set PathToDestDirectory=$(ThisFileDirectory)$(LibraryName)\$(PartName)\include\$(LibraryName)
+) else (
+set PathToDestDirectory=$(ThisFileDirectory)$(LibraryName)\$(PartName)\include\$(LibraryName)\$(LibraryPartName)
+)
+
+)
+
+echo Copy from !PathToSourceDirectory! ...
+echo ... to !PathToDestDirectory! ...
+echo ... files !CopyFiles!
+
+if exist !PathToSourceDirectory! (
+robocopy !PathToSourceDirectory! !PathToDestDirectory! !CopyFiles! /MIR &gt; nul
+if errorlevel 4 echo Externals.Build.props: error: copy header files (%errorlevel%)
+)
+
+copy "$(ProjectDir)..\*.hpp" "$(ThisFileDirectory)$(LibraryName)\$(PartName)\include\$(LibraryName)\" /Y 
+
+%(Command)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <IncludePathClear>$([System.String]::new($(IncludePath)).Replace(';;', ';').Replace(';;', ';'))</IncludePathClear>
+    <ParamsInclude>$([System.String]::new($(IncludePathClear)).Replace(';', '" -I "'))</ParamsInclude>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>%(Command)
+
+echo ****************************** CppCheck process *****************************
+
+rem Так будут подключены все доступные заголовочные файлы, но это СУЩЕСТВЕННО увеличит время обработки
+rem set ParamsInclude=-I "$(ParamsInclude)"
+
+set ParamsInclude=-I "$(SolutionDir)Solution\Solution"
+set ParamsExclude=-i stdafx.cpp -i Externals -i .svn -i "(Documentation)"
+
+set CppCheckExe=$(SolutionDir)Solution\Solution\Externals\Utilities\CppCheck\cppcheck.exe
+set CppCheckSuppress1=$(SolutionDir)Solution\CppCheck.suppress.hpp
+set CppCheckSuppress2=$(SolutionDir)Solution\Solution\Externals\Utilities\CppCheck\CppCheck.suppress.hpp
+set ParamsDefault=--enable=all --inline-suppr --inconclusive --quiet
+set ParamsTemplate=--template "{file}({line}): {severity} (suppress_id = {id}): {message}"
+set ParamsSuppress=--suppressions-list="%CppCheckSuppress1%" --suppressions-list="%CppCheckSuppress2%"
+set ParamsPlatform=--std=c++11 --platform=win64
+set ParamsDefine=--force
+set Params=%ParamsDefault% %ParamsTemplate% %ParamsSuppress% %ParamsPlatform% %ParamsDefine% %ParamsInclude% %ParamsExclude%
+set CppCheckLogFile=--output-file="$(SolutionDir)Solution\Solution\(Documentation)\CppCheck.result.txt"
+
+%CppCheckExe% --version
+
+if "%USING_SCRIPT_BILDING%" == "" (
+%CppCheckExe% %Params% --report-progress $(SolutionDir)Solution\Solution
+) else (
+%CppCheckExe% %Params% %CppCheckLogFile% $(SolutionDir)Solution\Solution
+)
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="IncludePathClear">
+      <Value>$(IncludePathClear)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ParamsInclude">
+      <Value>$(ParamsInclude)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
