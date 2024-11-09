@@ -1,2 +1,2 @@
-# Proreprties.Utilities
+# Properties.Utilities
 Репозиторий для обобщенных .props файлов и утилит, используемых при сборке остальных решений.
