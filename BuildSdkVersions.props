@@ -7,7 +7,7 @@
     <PostBuildEvent>
       <Command>if "$(IsAndroid)" == "No" goto EndSdkVersionsFile
 
-set PATH=%PATH%;"$(VS_AntHome)"\bin
+set PATH=%PATH%;"$(VS_AntHome)\bin"
 set PathToSdkVersionsFile=$(SolutionDir)Solution\SdkVersions.txt
 
 (
@@ -41,7 +41,7 @@ echo %~nx1
 exit /b 0
 
 :EchoJdkVersion
-set JdkVersionFile=%TEMP%\jdk.version.txt
+set JdkVersionFile=$(VsBuildDir)\jdk.version.txt
 $(VS_JavaHome)\bin\java.exe -version 2&gt; %JdkVersionFile%
 for /f "tokens=3" %%i in (%JdkVersionFile%) do (
   echo %%~i
