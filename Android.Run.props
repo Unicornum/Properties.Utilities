@@ -19,7 +19,7 @@ goto EndAndroidRun
 )
 
 rem Проверка наличия девайса для запуска
-set RUN_ADB=$(ANDROID_SDK_ROOT)\platform-tools\adb.exe
+set RUN_ADB=$(VS_AndroidHome)\platform-tools\adb.exe
 
 %RUN_ADB% devices &gt; %TEMP%\adb_devices.txt
 
